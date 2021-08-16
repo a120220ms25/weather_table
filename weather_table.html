@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1"> 
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-+0n0xVW2eSR5OomGNYDnhzAbDsOXxcvSN1TPprVMTNDbiYZCxYbOOl7+AMvyTG2x" crossorigin="anonymous">
+    <script
+    src="https://code.jquery.com/jquery-3.4.1.min.js"
+    integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
+    crossorigin="anonymous">
+    </script>
+    <!-- datatable -->
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/bs5/dt-1.10.25/datatables.min.css"/>
+    <script type="text/javascript" src="https://cdn.datatables.net/v/bs5/dt-1.10.25/datatables.min.js"></script>
+    
+    <style>
+      body{
+        max-width: 1140px;
+        margin: 0 auto;
+        font-size: 10px;
+      }
+      
+
+    </style>
+    <title>Hello, world!</title>
+  </head>
+  <body>
+    <div class="container">
+      <div class="wrap pt-3">
+          <h1 class="text-center fs-4">36小時天氣預報</h1>
+        <table class="table table-striped table-sm">
+          <thead>
+            <tr>
+              <th>編號</th>
+              <th>城市</th>
+              <th></th>
+              <th></th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody></tbody> 
+        </table>
+      </div>
+      </div>
+    
+ 
+<script>
+  let weatherData;
+  // 方式一
+  // $.ajax({
+  //   url:"https://opendata.cwb.gov.tw/fileapi/v1/opendataapi/F-C0032-001?Authorization=CWB-7E0FDB3F-BB6F-4FD4-9888-DB3BD2CA7A70&downloadType=WEB&format=JSON",
+  //   method:"GET",
+  //   dataType:"json",
+  //   success:function(res){
+  //     weatherData = res.cwbopendata.dataset.location;
+  //   },
+  //   error:function(e){
+  //     console.log(e);
+  //   }
+  
+  // })
+
+  // 方式二 成功 失敗
+    $.getJSON('https://opendata.cwb.gov.tw/fileapi/v1/opendataapi/F-C0032-001?Authorization=CWB-7E0FDB3F-BB6F-4FD4-9888-DB3BD2CA7A70&downloadType=WEB&format=JSON').done(function(res){
+      weatherData = res.cwbopendata.dataset.location;
+
+    const hrTxt = new Array();
+    hrTxt[0]="凌晨";
+    hrTxt[6]="白天";
+    hrTxt[12]="下午";
+    hrTxt[18]="晚上";
+
+    const 
+    time0 = new Date(weatherData[21].weatherElement[0].time[0].startTime),
+    time1 = new Date(weatherData[21].weatherElement[0].time[1].startTime),
+    time2 = new Date(weatherData[21].weatherElement[0].time[2].startTime),
+    timeTxt0 = `${time0.getFullYear() + "/" + (time0.getMonth()+1) +"/" + (time0.getDate())} ${hrTxt[time0.getHours()]} `,
+    timeTxt1 = `${time1.getFullYear() + "/" + (time1.getMonth()+1) +"/" + (time1.getDate())} ${hrTxt[time1.getHours()]} `,
+    timeTxt2 = `${time2.getFullYear() + "/" + (time2.getMonth()+1) +"/" + (time2.getDate())} ${hrTxt[time2.getHours()]} `;
+
+    console.log(timeTxt0, timeTxt1, timeTxt2);
+
+     $("tr td").eq(2).text(timeTxt0);
+     $("tr td").eq(3).text(timeTxt1);
+     $("tr td").eq(4).text(timeTxt2);
+
+
+     const
+     iconTxt0 =(time0.getHours==6||time0.getHours()==12)? "day":"night",
+     iconTxt1 =(time1.getHours==6||time0.getHours()==12)? "day":"night",
+     iconTxt2 =(time2.getHours==6||time0.getHours()==12)? "day":"night";
+
+      for(let i = 0; i < weatherData.length; i++){
+        $("tbody").append(
+        `
+        <tr>
+          <td>${i+1}</td>
+          <td>${weatherData[i].locationName}</td>
+          <td>
+            <img src="img/day/${weatherData[i].weatherElement[0].time[0].parameter.parameterValue}.svg" style="width:30px">
+            ${weatherData[i].weatherElement[0].time[0].parameter.parameterName}&nbsp;&nbsp;
+            ${weatherData[i].weatherElement[2].time[0].parameter.parameterName}~${weatherData[i].weatherElement[1].time[0].parameter.parameterName}度C
+            </td>
+
+          <td>
+            <img src="img/day/${weatherData[i].weatherElement[0].time[1].parameter.parameterValue}.svg" style="width:30px">
+            ${weatherData[i].weatherElement[0].time[1].parameter.parameterName}&nbsp;&nbsp;
+            ${weatherData[i].weatherElement[2].time[1].parameter.parameterName}~${weatherData[i].weatherElement[1].time[1].parameter.parameterName}度C
+            </td>
+
+          <td>
+            <img src="img/day/${weatherData[i].weatherElement[0].time[2].parameter.parameterValue}.svg" style="width:30px">
+            ${weatherData[i].weatherElement[0].time[2].parameter.parameterName}&nbsp;&nbsp;
+            ${weatherData[i].weatherElement[2].time[2].parameter.parameterName}~${weatherData[i].weatherElement[1].time[2].parameter.parameterName}度C
+            </td>
+         </tr>
+        `
+      )
+      }
+    
+   
+        $('.table').DataTable();
+    
+    })
+    
+    
+    
+    // .fail(function(){
+    //   console.log("fail");
+    // })
+
+
+// $.when  //// $.then
+
+</script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-gtEjrD/SeCtmISkJkNUaaKMoLD0//ElJ19smozuHV6z3Iehds+3Ulb9Bn9Plx0x4" crossorigin="anonymous"></script>
+  </body>
+</html>
